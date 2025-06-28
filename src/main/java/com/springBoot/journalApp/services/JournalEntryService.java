@@ -1,6 +1,7 @@
 package com.springBoot.journalApp.services;
 
 import com.springBoot.journalApp.entity.JournalEntity;
+import com.springBoot.journalApp.entity.User;
 import com.springBoot.journalApp.repository.JournalEntryRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -18,10 +19,24 @@ public class JournalEntryService {
     private static final Logger log = LoggerFactory.getLogger(JournalEntryService.class);
     @Autowired
     private JournalEntryRepository journalEntryRepo;
+    @Autowired
+    private UserService userService;
+
+    public void saveEntry(JournalEntity journalEntry, String userName){
+        User user = userService.findByUserName(userName);
+        try{
+            journalEntry.setDate(LocalDateTime.now());
+            JournalEntity saved = journalEntryRepo.save(journalEntry);
+            user.getJournalEntities().add(saved);
+            userService.saveEntry(user);
+        } catch(Exception ex){
+            log.error(String.valueOf(ex));
+        }
+
+    }
 
     public void saveEntry(JournalEntity journalEntry){
         try{
-            journalEntry.setDate(LocalDateTime.now());
             journalEntryRepo.save(journalEntry);
         } catch(Exception ex){
             log.error(String.valueOf(ex));
@@ -37,7 +52,10 @@ public class JournalEntryService {
         return journalEntryRepo.findById(id);
     }
 
-    public void deleteById(ObjectId id){
+    public void deleteById(ObjectId id, String userName){
+        User user = userService.findByUserName(userName);
+        user.getJournalEntities().removeIf(x -> x.getId().equals(id));
+        userService.saveEntry(user);
         journalEntryRepo.deleteById(id);
     }
 
