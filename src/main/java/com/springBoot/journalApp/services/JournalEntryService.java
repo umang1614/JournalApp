@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -22,6 +23,7 @@ public class JournalEntryService {
     @Autowired
     private UserService userService;
 
+    @Transactional
     public void saveEntry(JournalEntity journalEntry, String userName){
         User user = userService.findByUserName(userName);
         try{
@@ -31,6 +33,7 @@ public class JournalEntryService {
             userService.saveEntry(user);
         } catch(Exception ex){
             log.error(String.valueOf(ex));
+            throw new RuntimeException(ex);
         }
 
     }
