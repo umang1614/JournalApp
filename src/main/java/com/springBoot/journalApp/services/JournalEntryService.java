@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
+
 @Component
 @Slf4j
 public class JournalEntryService {
@@ -55,11 +57,19 @@ public class JournalEntryService {
         return journalEntryRepo.findById(id);
     }
 
-    public void deleteById(ObjectId id, String userName){
-        User user = userService.findByUserName(userName);
-        user.getJournalEntities().removeIf(x -> x.getId().equals(id));
-        userService.saveEntry(user);
-        journalEntryRepo.deleteById(id);
+    public boolean deleteById(ObjectId id, String userName){
+        boolean removeJournal = false;
+        try {
+            User user = userService.findByUserName(userName);
+            removeJournal = user.getJournalEntities().removeIf(x -> x.getId().equals(id));
+            if(removeJournal) {
+                userService.saveEntry(user);
+                journalEntryRepo.deleteById(id);
+            }
+        }
+        catch (Exception ex){
+            throw new RuntimeException("An Error occured in deleting the entry");
+        }
+        return removeJournal;
     }
-
 }
