@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -44,7 +43,7 @@ public class JournalEntryService {
         try{
             journalEntryRepo.save(journalEntry);
         } catch(Exception ex){
-            log.error(String.valueOf(ex));
+            log.error("Error eccured of {} ",String.valueOf(ex));
         }
 
     }
