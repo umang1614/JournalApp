@@ -26,7 +26,7 @@ public class UserService {
     @Autowired
     private UserRepository userRepo;
 
-    public void saveEntry(User user){
+    public void saveNewEntry(User user){
         try{
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setRoles(Arrays.asList("USER"));
@@ -35,6 +35,20 @@ public class UserService {
             log.error(String.valueOf(ex));
         }
 
+    }
+
+    public void saveAdminUser(User user){
+        try{
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setRoles(Arrays.asList("USER","ADMIN"));
+            userRepo.save(user);
+        } catch(Exception ex){
+            log.error(String.valueOf(ex));
+        }
+
+    }
+    public void saveEntry(User user){
+        userRepo.save(user);
     }
 
     public List<User> getEntry(){
